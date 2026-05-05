@@ -1,0 +1,35 @@
+name: group_n
+description: "A new Flutter project."
+publish_to: 'none'
+
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.11.4
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  cupertino_icons: ^1.0.8
+  
+  # State management
+  provider: ^6.1.2
+  
+  # Supabase
+  supabase_flutter: ^2.5.4
+  
+  # File picker
+  file_picker: ^8.0.0
+  
+  # Shared preferences
+  shared_preferences: ^2.2.3
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+  flutter_lints: ^6.0.0
+
+flutter:
+  uses-material-design: true
