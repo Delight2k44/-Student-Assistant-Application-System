@@ -1,6 +1,6 @@
 /*
- * 223022577
- * TD Tshitangano
+ * Student Numbers: (all your group member numbers here)
+ * Student Names: (all your group member names here)
  * Question: Profile Model
  */
 
@@ -10,7 +10,7 @@ class ProfileModel {
   final String studentNumber;
   final String role;
 
-  ProfileModel({
+  const ProfileModel({
     required this.id,
     required this.fullName,
     required this.studentNumber,
@@ -19,10 +19,11 @@ class ProfileModel {
 
   factory ProfileModel.fromMap(Map<String, dynamic> map) {
     return ProfileModel(
-      id: map['id'] ?? '',
-      fullName: map['full_name'] ?? '',
-      studentNumber: map['student_number'] ?? '',
-      role: map['role'] ?? 'student',
+      id: (map['id'] ?? '').toString(),
+      fullName: (map['full_name'] ?? map['fullName'] ?? '').toString(),
+      studentNumber: (map['student_number'] ?? map['studentNumber'] ?? '')
+          .toString(),
+      role: (map['role'] ?? '').toString(),
     );
   }
 
@@ -35,3 +36,4 @@ class ProfileModel {
     };
   }
 }
+

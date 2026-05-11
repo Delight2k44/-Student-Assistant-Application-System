@@ -15,9 +15,8 @@ class ApplicationModel {
   final bool eligibilityConfirmed;
   final String? documentUrl;
   final String status;
-  final DateTime createdAt;
 
-  ApplicationModel({
+  const ApplicationModel({
     required this.id,
     required this.userId,
     required this.yearOfStudy,
@@ -28,22 +27,30 @@ class ApplicationModel {
     required this.eligibilityConfirmed,
     this.documentUrl,
     required this.status,
-    required this.createdAt,
   });
 
   factory ApplicationModel.fromMap(Map<String, dynamic> map) {
     return ApplicationModel(
-      id: map['id'] ?? '',
-      userId: map['user_id'] ?? '',
-      yearOfStudy: map['year_of_study'] ?? '',
-      academicLevel1: map['academic_level_1'] ?? '',
-      module1: map['module_1'] ?? '',
-      academicLevel2: map['academic_level_2'],
-      module2: map['module_2'],
-      eligibilityConfirmed: map['eligibility_confirmed'] ?? false,
-      documentUrl: map['document_url'],
-      status: map['status'] ?? 'pending',
-      createdAt: DateTime.tryParse(map['created_at'] ?? '') ?? DateTime.now(),
+      id: (map['id'] ?? '').toString(),
+      userId: (map['user_id'] ?? map['userId'] ?? '').toString(),
+      yearOfStudy: (map['year_of_study'] ?? map['yearOfStudy'] ?? '').toString(),
+      academicLevel1:
+          (map['academic_level_1'] ?? map['academicLevel1'] ?? '').toString(),
+      module1: (map['module_1'] ?? map['module1'] ?? '').toString(),
+      academicLevel2: (map['academic_level_2'] ?? map['academicLevel2'])
+          ?.toString(),
+      module2: (map['module_2'] ?? map['module2'])?.toString(),
+      eligibilityConfirmed: (map['eligibility_confirmed'] ??
+              map['eligibilityConfirmed'] ??
+              false)
+          is bool
+          ? (map['eligibility_confirmed'] ?? map['eligibilityConfirmed'] ?? false)
+          : ((map['eligibility_confirmed'] ?? map['eligibilityConfirmed'] ?? false)
+              .toString()
+              .toLowerCase() ==
+              'true'),
+      documentUrl: (map['document_url'] ?? map['documentUrl'])?.toString(),
+      status: (map['status'] ?? '').toString(),
     );
   }
 
@@ -59,7 +66,7 @@ class ApplicationModel {
       'eligibility_confirmed': eligibilityConfirmed,
       'document_url': documentUrl,
       'status': status,
-      'created_at': createdAt.toIso8601String(),
     };
   }
 }
+

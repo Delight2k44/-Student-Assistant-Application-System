@@ -29,7 +29,6 @@ class ApplicationViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  // Fetch applications for the logged in student
   Future<void> fetchMyApplications() async {
     _isLoading = true;
     _errorMessage = null;
@@ -54,7 +53,6 @@ class ApplicationViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  // Fetch ALL applications for admin
   Future<void> fetchAllApplications() async {
     _isLoading = true;
     _errorMessage = null;
@@ -77,7 +75,6 @@ class ApplicationViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  // Submit a new application
   Future<bool> submitApplication({
     required String yearOfStudy,
     required String academicLevel1,
@@ -94,7 +91,6 @@ class ApplicationViewModel extends ChangeNotifier {
     try {
       final userId = _supabase.auth.currentUser!.id;
 
-      // Check if student already has an application
       final existing = await _supabase
           .from('applications')
           .select()
@@ -109,7 +105,6 @@ class ApplicationViewModel extends ChangeNotifier {
 
       String? documentUrl;
 
-      // Upload document if provided
       if (document != null && document.bytes != null) {
         final filePath = '$userId/${document.name}';
         await _supabase.storage
@@ -138,14 +133,13 @@ class ApplicationViewModel extends ChangeNotifier {
       notifyListeners();
       return true;
     } catch (e) {
-      _errorMessage = 'Failed to submit application.';
+      _errorMessage = 'Failed to submit application. Please try again.';
       _isLoading = false;
       notifyListeners();
       return false;
     }
   }
 
-  // Update an existing application
   Future<bool> updateApplication({
     required String applicationId,
     required String yearOfStudy,
@@ -181,7 +175,6 @@ class ApplicationViewModel extends ChangeNotifier {
     }
   }
 
-  // Delete an application
   Future<bool> deleteApplication(String applicationId) async {
     _isLoading = true;
     _errorMessage = null;
@@ -206,9 +199,7 @@ class ApplicationViewModel extends ChangeNotifier {
     }
   }
 
-  // Admin: update application status
-  Future<bool> updateApplicationStatus(
-      String applicationId, String status) async {
+  Future<bool> updateApplicationStatus(String applicationId, String status) async {
     _isLoading = true;
     _errorMessage = null;
     notifyListeners();
@@ -219,10 +210,7 @@ class ApplicationViewModel extends ChangeNotifier {
           .update({'status': status})
           .eq('id', applicationId);
 
-      final index = _applications.indexWhere((app) => app.id == applicationId);
-      if (index != -1) {
-        await fetchAllApplications();
-      }
+      await fetchAllApplications();
 
       _successMessage = 'Application $status successfully.';
       _isLoading = false;
@@ -242,3 +230,4 @@ class ApplicationViewModel extends ChangeNotifier {
     notifyListeners();
   }
 }
+

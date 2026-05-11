@@ -16,16 +16,19 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   await Supabase.initialize(
-    url: 'https://jqovxwkxuahggrzVvhz.supabase.co',
+    url: 'https://jqovxwkxuahggrzvvhz.supabase.co',
     anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Impxb3Z4d3hrdXhhaGdncnp2dmh6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc2NzQ1OTAsImV4cCI6MjA5MzI1MDU5MH0.VxNCDwx-BQL5rZO5VGuPzsiNHPQ6ycNLVOJ-rKe9OH0',
   );
 
   final prefs = await SharedPreferences.getInstance();
-  final bool onboardingComplete = prefs.getBool('onboarding_complete') ?? false;
+  final bool onboardingComplete =
+      prefs.getBool('onboarding_complete') ?? false;
 
-  runApp(MyApp(startRoute: onboardingComplete
-      ? RouteManager.login
-      : RouteManager.onboarding));
+  runApp(MyApp(
+    startRoute: onboardingComplete
+        ? RouteManager.login
+        : RouteManager.onboarding,
+  ));
 }
 
 class MyApp extends StatelessWidget {

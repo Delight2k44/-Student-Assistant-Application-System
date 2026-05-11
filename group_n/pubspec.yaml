@@ -1,35 +1,26 @@
 name: group_n
-description: "A new Flutter project."
+description: Student Assistant Application System
 publish_to: 'none'
 
 version: 1.0.0+1
 
 environment:
-  sdk: ^3.11.4
+  sdk: '>=3.0.0 <4.0.0'
 
 dependencies:
   flutter:
     sdk: flutter
-
-  cupertino_icons: ^1.0.8
-  
-  # State management
+  cupertino_icons: ^1.0.2
   provider: ^6.1.2
-  
-  # Supabase
-  supabase_flutter: ^2.5.4
-  
-  # File picker
-  file_picker: ^8.0.0
-  
-  # Shared preferences
+  supabase_flutter: ^2.3.4
   shared_preferences: ^2.2.3
+  file_picker: ^8.0.3
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-
-  flutter_lints: ^6.0.0
+  flutter_lints: ^3.0.0
 
 flutter:
   uses-material-design: true
+

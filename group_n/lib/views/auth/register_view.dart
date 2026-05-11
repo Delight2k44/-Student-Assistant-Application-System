@@ -1,7 +1,7 @@
 /*
  * Student Numbers: (all your group member numbers here)
  * Student Names: (all your group member names here)
- * Question: Register Screen
+ * Question: Register Screen (Optimized)
  */
 
 import 'package:flutter/material.dart';
@@ -20,24 +20,32 @@ class RegisterView extends StatefulWidget {
 
 class _RegisterViewState extends State<RegisterView>
     with SingleTickerProviderStateMixin {
+  // ─── Form & Controllers ────────────────────────────────────────────────────
   final _formKey = GlobalKey<FormState>();
-  final _fullNameController = TextEditingController();
-  final _studentNumberController = TextEditingController();
-  final _emailController = TextEditingController();
-  final _passwordController = TextEditingController();
-  final _confirmPasswordController = TextEditingController();
+  final _controllers = <String, TextEditingController>{
+    'fullName': TextEditingController(),
+    'studentNumber': TextEditingController(),
+    'email': TextEditingController(),
+    'password': TextEditingController(),
+    'confirmPassword': TextEditingController(),
+  };
 
-  final _fullNameFocus = FocusNode();
-  final _studentNumberFocus = FocusNode();
-  final _emailFocus = FocusNode();
-  final _passwordFocus = FocusNode();
-  final _confirmPasswordFocus = FocusNode();
+  // ─── Focus Nodes ───────────────────────────────────────────────────────────
+  final _focusNodes = <String, FocusNode>{
+    'fullName': FocusNode(),
+    'studentNumber': FocusNode(),
+    'email': FocusNode(),
+    'password': FocusNode(),
+    'confirmPassword': FocusNode(),
+  };
 
+  // ─── State ─────────────────────────────────────────────────────────────────
   bool _obscurePassword = true;
   bool _obscureConfirmPassword = true;
-  bool _isEmailValid = false;
+  bool _isLoading = false;
   double _passwordStrength = 0.0;
 
+  // ─── Animation ─────────────────────────────────────────────────────────────
   late final AnimationController _animController;
   late final Animation<double> _fadeAnimation;
   late final Animation<Offset> _slideAnimation;
@@ -45,6 +53,8 @@ class _RegisterViewState extends State<RegisterView>
   // ─── Constants ─────────────────────────────────────────────────────────────
   static const _primaryColor = Color(0xFF1565C0);
   static const _animationDuration = Duration(milliseconds: 800);
+  static const _inputSpacing = 20.0;
+  static const _cardPadding = 28.0;
 
   @override
   void initState() {
@@ -67,56 +77,68 @@ class _RegisterViewState extends State<RegisterView>
       curve: Curves.easeOutCubic,
     ));
 
+    // Listen to password changes for strength meter
+    _controllers['password']!.addListener(_calculatePasswordStrength);
+
     _animController.forward();
   }
 
   @override
   void dispose() {
-    _fullNameController.dispose();
-    _studentNumberController.dispose();
-    _emailController.dispose();
-    _passwordController.dispose();
-    _confirmPasswordController.dispose();
-    _fullNameFocus.dispose();
-    _studentNumberFocus.dispose();
-    _emailFocus.dispose();
-    _passwordFocus.dispose();
-    _confirmPasswordFocus.dispose();
+    // Dispose all controllers and focus nodes efficiently
+    for (final controller in _controllers.values) {
+      controller.dispose();
+    }
+    for (final node in _focusNodes.values) {
+      node.dispose();
+    }
     _animController.dispose();
     super.dispose();
   }
 
-
-
+  // ─── Password Strength Logic ───────────────────────────────────────────────
   void _calculatePasswordStrength() {
-    final password = _passwordController.text;
+    final password = _controllers['password']!.text;
+    if (password.isEmpty) {
+      if (_passwordStrength != 0.0) {
+        setState(() => _passwordStrength = 0.0);
+      }
+      return;
+    }
+
     double strength = 0.0;
+    if (password.length >= 6) strength += 0.2;
+    if (password.length >= 10) strength += 0.2;
+    if (password.length >= 12) strength += 0.1;
+    if (RegExp(r'[A-Z]').hasMatch(password)) strength += 0.15;
+    if (RegExp(r'[a-z]').hasMatch(password)) strength += 0.15;
+    if (RegExp(r'[0-9]').hasMatch(password)) strength += 0.1;
+    if (RegExp(r'[!@#$%^&*(),.?":{}|<>]').hasMatch(password)) strength += 0.1;
 
-    if (password.length >= 6) strength += 0.25;
-    if (password.length >= 10) strength += 0.25;
-    if (RegExp(r'[A-Z]').hasMatch(password)) strength += 0.25;
-    if (RegExp(r'[0-9!@#$%^&*]').hasMatch(password)) strength += 0.25;
-
+    strength = strength.clamp(0.0, 1.0);
     if (strength != _passwordStrength) {
       setState(() => _passwordStrength = strength);
     }
   }
 
   Color _getPasswordStrengthColor() {
-    if (_passwordStrength <= 0.25) return Colors.red.shade400;
+    if (_passwordStrength <= 0.3) return Colors.red.shade400;
     if (_passwordStrength <= 0.5) return Colors.orange.shade400;
-    if (_passwordStrength <= 0.75) return Colors.yellow.shade700;
+    if (_passwordStrength <= 0.7) return Colors.yellow.shade700;
     return Colors.green.shade500;
   }
 
   String _getPasswordStrengthText() {
-    if (_passwordStrength <= 0.25) return 'Weak';
+    if (_passwordStrength <= 0.3) return 'Weak';
     if (_passwordStrength <= 0.5) return 'Fair';
-    if (_passwordStrength <= 0.75) return 'Good';
+    if (_passwordStrength <= 0.7) return 'Good';
     return 'Strong';
   }
 
   // ─── Actions ───────────────────────────────────────────────────────────────
+  void _unfocusAll() {
+    FocusScope.of(context).unfocus();
+  }
 
   Future<void> _handleRegister() async {
     if (!_formKey.currentState!.validate()) {
@@ -125,90 +147,90 @@ class _RegisterViewState extends State<RegisterView>
     }
 
     _unfocusAll();
+    setState(() => _isLoading = true);
 
-    final result = await context.read<AuthViewModel>().register(
-          email: _emailController.text.trim(),
-          password: _passwordController.text.trim(),
-          fullName: _fullNameController.text.trim(),
-          studentNumber: _studentNumberController.text.trim(),
-        );
+    try {
+      final result = await context.read<AuthViewModel>().register(
+        email: _controllers['email']!.text.trim(),
+        password: _controllers['password']!.text.trim(),
+        fullName: _controllers['fullName']!.text.trim(),
+        studentNumber: _controllers['studentNumber']!.text.trim(),
+      );
 
-    if (!mounted) return;
+      if (!mounted) return;
 
-    if (result == 'success') {
-      _showSuccessDialog();
+      if (result == 'success') {
+        _showSuccessDialog();
+      } else {
+        _showErrorSnackBar(result ?? 'Registration failed. Please try again.');
+      }
+    } catch (e) {
+      if (mounted) _showErrorSnackBar('An error occurred: ${e.toString()}');
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
     }
-  }
-
-  void _unfocusAll() {
-    _fullNameFocus.unfocus();
-    _studentNumberFocus.unfocus();
-    _emailFocus.unfocus();
-    _passwordFocus.unfocus();
-    _confirmPasswordFocus.unfocus();
   }
 
   void _showSuccessDialog() {
     showDialog(
       context: context,
+      barrierDismissible: false,
       builder: (context) => AlertDialog(
-        title: const Text('Success'),
-        content: const Text('Registration successful! Please login.'),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        icon: const Icon(Icons.check_circle, color: Colors.green, size: 48),
+        title: const Text('Registration Successful'),
+        content: const Text(
+          'Your account has been created. Please sign in to continue.',
+        ),
         actions: [
           TextButton(
             onPressed: () {
               Navigator.pop(context);
               Navigator.pushReplacementNamed(context, RouteManager.login);
             },
-            child: const Text('OK'),
+            child: const Text('Go to Login'),
           ),
         ],
       ),
     );
   }
 
-  void _togglePasswordVisibility() {
-    setState(() => _obscurePassword = !_obscurePassword);
-  }
-
-  void _toggleConfirmPasswordVisibility() {
-    setState(() => _obscureConfirmPassword = !_obscureConfirmPassword);
+  void _showErrorSnackBar(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Row(
+          children: [
+            const Icon(Icons.error_outline, color: Colors.white),
+            const SizedBox(width: 12),
+            Expanded(child: Text(message)),
+          ],
+        ),
+        backgroundColor: Colors.red.shade700,
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        margin: const EdgeInsets.all(16),
+        duration: const Duration(seconds: 4),
+        action: SnackBarAction(
+          label: 'DISMISS',
+          textColor: Colors.white,
+          onPressed: () {},
+        ),
+      ),
+    );
   }
 
   void _navigateToLogin() => Navigator.pop(context);
 
   // ─── Build ─────────────────────────────────────────────────────────────────
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFC),
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        leading: Container(
-          margin: const EdgeInsets.all(8),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(12),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.05),
-                blurRadius: 8,
-              ),
-            ],
-          ),
-          child: IconButton(
-            icon: const Icon(Icons.arrow_back_rounded),
-            color: Colors.grey.shade700,
-            onPressed: _navigateToLogin,
-          ),
-        ),
-      ),
+      appBar: _buildAppBar(),
       body: SafeArea(
         child: SingleChildScrollView(
           physics: const BouncingScrollPhysics(),
-          padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 10),
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 10),
           child: FadeTransition(
             opacity: _fadeAnimation,
             child: SlideTransition(
@@ -217,7 +239,7 @@ class _RegisterViewState extends State<RegisterView>
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   _buildHeader(),
-                  const SizedBox(height: 40),
+                  const SizedBox(height: 36),
                   _buildFormCard(),
                   const SizedBox(height: 32),
                 ],
@@ -230,6 +252,30 @@ class _RegisterViewState extends State<RegisterView>
   }
 
   // ─── Sub-Builders ──────────────────────────────────────────────────────────
+  PreferredSizeWidget _buildAppBar() {
+    return AppBar(
+      backgroundColor: Colors.transparent,
+      elevation: 0,
+      leading: Container(
+        margin: const EdgeInsets.all(8),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(12),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withAlpha(13),
+              blurRadius: 8,
+            ),
+          ],
+        ),
+        child: IconButton(
+          icon: const Icon(Icons.arrow_back_rounded),
+          color: Colors.grey.shade700,
+          onPressed: _navigateToLogin,
+        ),
+      ),
+    );
+  }
 
   Widget _buildHeader() {
     return Center(
@@ -254,7 +300,7 @@ class _RegisterViewState extends State<RegisterView>
                     borderRadius: BorderRadius.circular(22),
                     boxShadow: [
                       BoxShadow(
-                        color: _primaryColor.withOpacity(0.3),
+                        color: _primaryColor.withAlpha(77),
                         blurRadius: 20,
                         offset: const Offset(0, 8),
                       ),
@@ -300,63 +346,59 @@ class _RegisterViewState extends State<RegisterView>
         borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.04),
+            color: Colors.black.withAlpha(10),
             blurRadius: 24,
             offset: const Offset(0, 4),
           ),
           BoxShadow(
-            color: Colors.black.withOpacity(0.02),
+            color: Colors.black.withAlpha(5),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
         ],
       ),
-      padding: const EdgeInsets.all(28),
+      padding: const EdgeInsets.all(_cardPadding),
       child: Form(
         key: _formKey,
+        autovalidateMode: AutovalidateMode.onUserInteraction,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             _buildTextField(
-              controller: _fullNameController,
-              focusNode: _fullNameFocus,
+              key: 'fullName',
               label: 'Full Name',
               hint: 'John Doe',
               prefixIcon: Icons.person_outlined,
               textCapitalization: TextCapitalization.words,
               textInputAction: TextInputAction.next,
-              onFieldSubmitted: (_) => _studentNumberFocus.requestFocus(),
+              nextFocus: 'studentNumber',
               validator: _validateFullName,
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: _inputSpacing),
             _buildTextField(
-              controller: _studentNumberController,
-              focusNode: _studentNumberFocus,
+              key: 'studentNumber',
               label: 'Student Number',
               hint: 'e.g. 12345678',
               prefixIcon: Icons.badge_outlined,
               keyboardType: TextInputType.number,
               textInputAction: TextInputAction.next,
-              onFieldSubmitted: (_) => _emailFocus.requestFocus(),
+              nextFocus: 'email',
               validator: _validateStudentNumber,
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: _inputSpacing),
             _buildTextField(
-              controller: _emailController,
-              focusNode: _emailFocus,
+              key: 'email',
               label: 'Email Address',
               hint: 'name@student.cut.ac.za',
               prefixIcon: Icons.email_outlined,
-              suffixIcon: _isEmailValid ? Icons.check_circle : null,
               keyboardType: TextInputType.emailAddress,
               textInputAction: TextInputAction.next,
-              onFieldSubmitted: (_) => _passwordFocus.requestFocus(),
+              nextFocus: 'password',
               validator: _validateEmail,
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: _inputSpacing),
             _buildTextField(
-              controller: _passwordController,
-              focusNode: _passwordFocus,
+              key: 'password',
               label: 'Password',
               hint: 'Create a strong password',
               prefixIcon: Icons.lock_outlined,
@@ -364,19 +406,18 @@ class _RegisterViewState extends State<RegisterView>
               suffixIcon: _obscurePassword
                   ? Icons.visibility_off_outlined
                   : Icons.visibility_outlined,
-              onSuffixTap: _togglePasswordVisibility,
+              onSuffixTap: () => setState(() => _obscurePassword = !_obscurePassword),
               textInputAction: TextInputAction.next,
-              onFieldSubmitted: (_) => _confirmPasswordFocus.requestFocus(),
+              nextFocus: 'confirmPassword',
               validator: _validatePassword,
             ),
-            if (_passwordController.text.isNotEmpty) ...[
-              const SizedBox(height: 8),
+            if (_passwordStrength > 0) ...[
+              const SizedBox(height: 10),
               _buildPasswordStrengthIndicator(),
             ],
-            const SizedBox(height: 20),
+            const SizedBox(height: _inputSpacing),
             _buildTextField(
-              controller: _confirmPasswordController,
-              focusNode: _confirmPasswordFocus,
+              key: 'confirmPassword',
               label: 'Confirm Password',
               hint: 'Re-enter your password',
               prefixIcon: Icons.lock_outline,
@@ -384,7 +425,7 @@ class _RegisterViewState extends State<RegisterView>
               suffixIcon: _obscureConfirmPassword
                   ? Icons.visibility_off_outlined
                   : Icons.visibility_outlined,
-              onSuffixTap: _toggleConfirmPasswordVisibility,
+              onSuffixTap: () => setState(() => _obscureConfirmPassword = !_obscureConfirmPassword),
               textInputAction: TextInputAction.done,
               onFieldSubmitted: (_) => _handleRegister(),
               validator: _validateConfirmPassword,
@@ -400,8 +441,7 @@ class _RegisterViewState extends State<RegisterView>
   }
 
   Widget _buildTextField({
-    required TextEditingController controller,
-    required FocusNode focusNode,
+    required String key,
     required String label,
     required String hint,
     required IconData prefixIcon,
@@ -411,41 +451,62 @@ class _RegisterViewState extends State<RegisterView>
     bool obscureText = false,
     IconData? suffixIcon,
     VoidCallback? onSuffixTap,
+    String? nextFocus,
     Function(String)? onFieldSubmitted,
     String? Function(String?)? validator,
   }) {
     return TextFormField(
-      controller: controller,
-      focusNode: focusNode,
+      controller: _controllers[key],
+      focusNode: _focusNodes[key],
       decoration: InputDecoration(
         labelText: label,
         hintText: hint,
         prefixIcon: Icon(prefixIcon, color: _primaryColor),
         suffixIcon: suffixIcon != null
-            ? GestureDetector(
-                onTap: onSuffixTap,
-                child: Icon(suffixIcon, color: _primaryColor),
+            ? IconButton(
+                icon: Icon(suffixIcon, color: Colors.grey.shade600),
+                tooltip: obscureText ? 'Show password' : 'Hide password',
+                onPressed: onSuffixTap,
               )
             : null,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: Colors.grey, width: 1),
+          borderSide: BorderSide(color: Colors.grey.shade300),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: Colors.grey.shade300, width: 1),
+          borderSide: BorderSide(color: Colors.grey.shade300),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide: const BorderSide(color: _primaryColor, width: 2),
         ),
+        errorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: Colors.red.shade400, width: 1.5),
+        ),
+        focusedErrorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: Colors.red.shade600, width: 2),
+        ),
+        filled: true,
+        fillColor: Colors.grey.shade50,
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
       ),
       obscureText: obscureText,
       keyboardType: keyboardType,
       textCapitalization: textCapitalization,
       textInputAction: textInputAction,
+      autocorrect: false,
+      enableSuggestions: key != 'password' && key != 'confirmPassword',
       validator: validator,
-      onFieldSubmitted: onFieldSubmitted,
+      onFieldSubmitted: onFieldSubmitted ?? (_) {
+        if (nextFocus != null && _focusNodes.containsKey(nextFocus)) {
+          _focusNodes[nextFocus]!.requestFocus();
+        } else if (textInputAction == TextInputAction.done) {
+          _handleRegister();
+        }
+      },
     );
   }
 
@@ -481,24 +542,36 @@ class _RegisterViewState extends State<RegisterView>
   Widget _buildRegisterButton() {
     return SizedBox(
       width: double.infinity,
+      height: 52,
       child: ElevatedButton(
-        onPressed: _handleRegister,
+        onPressed: _isLoading ? null : _handleRegister,
         style: ElevatedButton.styleFrom(
           backgroundColor: _primaryColor,
           foregroundColor: Colors.white,
-          padding: const EdgeInsets.symmetric(vertical: 16),
+          disabledBackgroundColor: Colors.grey.shade400,
+          disabledForegroundColor: Colors.white70,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(14),
           ),
+          elevation: 2,
         ),
-        child: const Text(
-          'Create Account',
-          style: TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.bold,
-            letterSpacing: 0.5,
-          ),
-        ),
+        child: _isLoading
+            ? const SizedBox(
+                width: 22,
+                height: 22,
+                child: CircularProgressIndicator(
+                  color: Colors.white,
+                  strokeWidth: 2.5,
+                ),
+              )
+            : const Text(
+                'Create Account',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                  letterSpacing: 0.5,
+                ),
+              ),
       ),
     );
   }
@@ -530,54 +603,44 @@ class _RegisterViewState extends State<RegisterView>
   }
 
   // ─── Validators ────────────────────────────────────────────────────────────
-
   String? _validateFullName(String? value) {
-    if (value?.isEmpty ?? true) {
-      return 'Full name is required';
-    }
-    if (value!.length < 2) {
-      return 'Full name must be at least 2 characters';
+    if (value?.trim().isEmpty ?? true) return 'Full name is required';
+    if (value!.trim().length < 2) return 'Must be at least 2 characters';
+    if (!RegExp(r"^[a-zA-Z\s'-]+$").hasMatch(value.trim())) {
+      return 'Only letters, spaces, hyphens and apostrophes allowed';
     }
     return null;
   }
 
   String? _validateStudentNumber(String? value) {
-    if (value?.isEmpty ?? true) {
-      return 'Student number is required';
-    }
-    if (value!.length < 8) {
-      return 'Student number must be at least 8 characters';
-    }
+    if (value?.trim().isEmpty ?? true) return 'Student number is required';
+    final trimmed = value!.trim();
+    if (trimmed.length < 8) return 'Must be at least 8 characters';
+    if (!RegExp(r'^\d+$').hasMatch(trimmed)) return 'Only digits allowed';
     return null;
   }
 
   String? _validateEmail(String? value) {
-    if (value?.isEmpty ?? true) {
-      return 'Email is required';
-    }
-    if (!RegExp(r'^[\w.-]+@[\w.-]+\.\w+$').hasMatch(value!)) {
-      return 'Please enter a valid email';
-    }
+    if (value?.trim().isEmpty ?? true) return 'Email is required';
+    final trimmed = value!.trim();
+    // RFC 5322 simplified
+    final emailRegex = RegExp(
+      r"^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,253}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,253}[a-zA-Z0-9])?)*$",
+    );
+    if (!emailRegex.hasMatch(trimmed)) return 'Enter a valid email address';
     return null;
   }
 
   String? _validatePassword(String? value) {
-    if (value?.isEmpty ?? true) {
-      return 'Password is required';
-    }
-    if (value!.length < 6) {
-      return 'Password must be at least 6 characters';
-    }
+    if (value?.isEmpty ?? true) return 'Password is required';
+    if (value!.length < 6) return 'Must be at least 6 characters';
+    if (value.length > 128) return 'Max 128 characters allowed';
     return null;
   }
 
   String? _validateConfirmPassword(String? value) {
-    if (value?.isEmpty ?? true) {
-      return 'Please confirm your password';
-    }
-    if (value != _passwordController.text) {
-      return 'Passwords do not match';
-    }
+    if (value?.isEmpty ?? true) return 'Please confirm your password';
+    if (value != _controllers['password']!.text) return 'Passwords do not match';
     return null;
   }
 }

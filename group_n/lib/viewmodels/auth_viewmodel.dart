@@ -38,6 +38,10 @@ class AuthViewModel extends ChangeNotifier {
         notifyListeners();
         return _profile?.role;
       }
+    } on AuthException catch (e) {
+      _errorMessage = e.message;
+      _isLoading = false;
+      notifyListeners();
     } catch (e) {
       _errorMessage = 'Login failed. Please check your credentials.';
       _isLoading = false;
@@ -67,7 +71,6 @@ class AuthViewModel extends ChangeNotifier {
       );
 
       if (response.user != null) {
-        // Update the profile with student number
         await _supabase.from('profiles').upsert({
           'id': response.user!.id,
           'full_name': fullName,
@@ -78,13 +81,23 @@ class AuthViewModel extends ChangeNotifier {
         _isLoading = false;
         notifyListeners();
         return 'success';
+      } else {
+        _errorMessage = 'Registration failed. Please try again.';
+        _isLoading = false;
+        notifyListeners();
+        return null;
       }
-    } catch (e) {
-      _errorMessage = 'Registration failed. Please try again.';
+    } on AuthException catch (e) {
+      _errorMessage = e.message;
       _isLoading = false;
       notifyListeners();
+      return null;
+    } catch (e) {
+      _errorMessage = 'Something went wrong: ${e.toString()}';
+      _isLoading = false;
+      notifyListeners();
+      return null;
     }
-    return null;
   }
 
   Future<void> _fetchProfile(String userId) async {
@@ -106,4 +119,10 @@ class AuthViewModel extends ChangeNotifier {
     _profile = null;
     notifyListeners();
   }
+
+  void clearError() {
+    _errorMessage = null;
+    notifyListeners();
+  }
 }
+
