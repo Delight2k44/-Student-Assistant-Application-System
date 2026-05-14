@@ -30,7 +30,7 @@ The application supports two user roles:
 
 ---
 
-## ✅ Contributors — README Acknowledgement
+##  Contributors — README Acknowledgement
 
 > **Important:** Every group member who contributed to this project **must** add their name and student number below as proof that they have read through this README and understand the system.
 
@@ -43,8 +43,15 @@ The application supports two user roles:
 | *(Your full name)* | *(Your student number)* | *(Date)* |
 
 ---
+Login Details 
 
-## 🛠 Tech Stack
+Email: admin@gmail.com
+password:Test!1234
+
+For User 
+Create a new user 
+
+##  Tech Stack
 
 | Technology | Purpose |
 |---|---|
@@ -57,7 +64,7 @@ The application supports two user roles:
 
 ---
 
-## 🏗 Architecture — MVVM with Provider
+##  Architecture — MVVM with Provider
 
 This project follows the **Model-View-ViewModel (MVVM)** architecture pattern as required by the assignment.
 
