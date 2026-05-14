@@ -23,7 +23,7 @@ The application supports two user roles:
 | Full Name | Student Number |
 |---|---|
 | Delight Tshitangano | 223022577 |
-| *(Add member name)* | *(Add student number)* |
+| Geraldo Leeuw | 221026798 |
 | *(Add member name)* | *(Add student number)* |
 | *(Add member name)* | *(Add student number)* |
 | *(Add member name)* | *(Add student number)* |
