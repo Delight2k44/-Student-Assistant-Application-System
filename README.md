@@ -37,7 +37,7 @@ The application supports two user roles:
 | Full Name | Student Number | Date |
 |---|---|---|
 | Delight Tshitangano | 223022577 | 15 May 2026 |
-| *(Your full name)* | *(Your student number)* | *(Date)* |
+| Geraldo Leeuw | 221026798 | 15 May 2026 |
 | *(Your full name)* | *(Your student number)* | *(Date)* |
 | *(Your full name)* | *(Your student number)* | *(Date)* |
 | *(Your full name)* | *(Your student number)* | *(Date)* |
