@@ -24,7 +24,7 @@ The application supports two user roles:
 |---|---|
 | Delight Tshitangano | 223022577 |
 | Geraldo Leeuw | 221026798 |
-| *(Add member name)* | *(Add student number)* |
+| Mathabo Mohapi | 222070281|
 | *(Add member name)* | *(Add student number)* |
 | *(Add member name)* | *(Add student number)* |
 
