@@ -38,7 +38,7 @@ The application supports two user roles:
 |---|---|---|
 | Delight Tshitangano | 223022577 | 15 May 2026 |
 | Geraldo Leeuw | 221026798 | 15 May 2026 |
-| *(Your full name)* | *(Your student number)* | *(Date)* |
+| Mathabo Mohapi | 222070281 | 15 May 2026 |
 | *(Your full name)* | *(Your student number)* | *(Date)* |
 | *(Your full name)* | *(Your student number)* | *(Date)* |
 
