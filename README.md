@@ -26,7 +26,7 @@ The application supports two user roles:
 | Geraldo Leeuw | 221026798 |
 | Mathabo Mohapi | 222070281|
 | *(Add member name)* | *(Add student number)* |
-| *(Add member name)* | *(Add student number)* |
+
 
 ---
 
@@ -228,16 +228,16 @@ ean
 
 ##  Key Features Implemented
 
-- ✅ Supabase Authentication with role-based routing
-- ✅ Students can submit one application with up to 2 modules
-- ✅ Supporting document upload to Supabase Storage
-- ✅ Students can edit their application while it is pending
-- ✅ Students can delete their application with confirmation
-- ✅ Admin can approve or reject applications
-- ✅ Real-time status updates — student sees approval/rejection instantly without refreshing
-- ✅ Admin dashboard with counters (Total, Pending, Approved, Rejected)
-- ✅ Search and filter on admin dashboard
-- ✅ Row Level Security (RLS) for data isolation between users
+-  Supabase Authentication with role-based routing
+-  Students can submit one application with up to 2 modules
+-  Supporting document upload to Supabase Storage
+-  Students can edit their application while it is pending
+-  Students can delete their application with confirmation
+-  Admin can approve or reject applications
+-  Real-time status updates — student sees approval/rejection instantly without refreshing
+-  Admin dashboard with counters (Total, Pending, Approved, Rejected)
+- Search and filter on admin dashboard
+-  Row Level Security (RLS) for data isolation between users
 
 ---
 
