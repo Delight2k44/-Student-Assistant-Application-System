@@ -25,7 +25,7 @@ The application supports two user roles:
 | Delight Tshitangano | 223022577 |
 | Geraldo Leeuw | 221026798 |
 | Mathabo Mohapi | 222070281|
-| *(Add member name)* | *(Add student number)* |
+|Isha Salam | 223043998 |
 
 
 ---
@@ -39,8 +39,8 @@ The application supports two user roles:
 | Delight Tshitangano | 223022577 | 15 May 2026 |
 | Geraldo Leeuw | 221026798 | 15 May 2026 |
 | Mathabo Mohapi | 222070281 | 15 May 2026 |
-| *(Your full name)* | *(Your student number)* | *(Date)* |
-| *(Your full name)* | *(Your student number)* | *(Date)* |
+| Isha Salam* | 223043998|15 May 2026* |
+
 
 ---
 Login Details 
